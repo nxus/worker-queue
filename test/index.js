@@ -48,4 +48,28 @@ describe("Worker Queue", () => {
       });
     })
   });
+  describe("Tasks", () => {
+    beforeEach(() => {
+      module = new WorkerQueue(app);
+      module._connect()
+    });
+    afterEach(() => {
+      module._disconnect()
+    })
+
+    it("should process tasks", (done) => {
+      module.worker('testTask', (msg) => {
+        msg.hi.should.equal("World")
+      })
+      app.get().on.calledWith('worker-testTask').should.be.true
+      setTimeout(() => {
+        module.task('testTask', {hi: "World"})
+        setTimeout(() => {
+          app.get().emit.calledWith('worker-testTask').should.be.true
+          app.get().emit.firstCall.args[1].should.have.property('hi', 'World')
+          done()
+        }, 200)
+      }, 200)
+    });
+  });
 })

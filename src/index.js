@@ -6,8 +6,10 @@
 
 'use strict';
 
+import redis from 'redis'
+
 const _defaultConfig = {
-  redis_url: process.env.REDIS_URL || 'redis://localhost'
+  redis_url: process.env.REDIS_URL || 'redis://localhost:6379'
 }
 
 /**
@@ -37,7 +39,8 @@ export default class WorkerQueue {
   
   worker (taskName, handler) {
     this.app.log.debug('Registering task worker for', taskName)
-    
+    this.subscriber.subscribe(taskName)
+    this.on("worker-"+taskName, handler)
   }
 
   /**
@@ -48,17 +51,38 @@ export default class WorkerQueue {
    */
   task (taskName, message) {
     this.app.log.debug('Task requested', taskName)
-    
+    this.publisher.publish(taskName, JSON.stringify(message))
   }
   
 
   // Internal
 
   _connect () {
-    
+    // Redis needs separate connections for pub/sub
+    this.publisher = redis.createClient(this.config.redis_url)
+    this.publisher.on("error", (err) => {
+      this.app.log.debug("Publisher error", err)
+    })
+    this.subscriber = redis.createClient(this.config.redis_url)
+    this.subscriber.on("error", (err) => {
+      this.app.log.debug("Subscriber error", err)
+    })
+    this.subscriber.on("message", (channel, message) => {
+      message = JSON.parse(message)
+      this.emit("worker-"+channel, message)
+    })
+    this.app.log.debug('Connected to task queue pubsub')
   }
 
   _disconnect () {
-    
+    if (this.publisher) {
+      this.publisher.quit()
+      delete this.publisher
+    }
+    if (this.subscriber) {
+      this.subscriber.unsubscribe()
+      this.subscriber.quit()
+      delete this.subscriber
+    }
   }
 } 
