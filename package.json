@@ -1,7 +1,7 @@
 {
-  "name": "",
+  "name": "@nxus/worker-queue",
   "version": "0.0.1",
-  "description": "",
+  "description": "Nxus worker queue for background tasks",
   "main": "lib",
   "scripts": {
     "test": "NODE_ENV=test mocha --compilers js:babel/register -R spec",
@@ -13,22 +13,23 @@
   },
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "git+https://github.com/nxus/worker-queue.git"
   },
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": ""
+    "url": "https://github.com/nxus/worker-queue/issues"
   },
-  "homepage": "",
+  "homepage": "https://github.com/nxus/worker-queue/",
   "dependencies": {
-    "babel-runtime": "^5.7.0"
+    "babel-runtime": "^5.7.0",
+    "redis": "^2.4.2"
   },
   "peerDependencies": {
-    "@nxus/core": "^2.2.0"
+    "@nxus/core": "^2.3.6"
   },
   "devDependencies": {
-    "@nxus/core": "^2.3.0",
+    "@nxus/core": "^2.3.6",
     "babel": "^5.6.23",
     "mocha": "^2.2.5",
     "should": "^7.0.2",
