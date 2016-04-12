@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-02-13 08:59:44
-* @Last Modified 2016-02-13 @Last Modified time: 2016-02-13 08:59:44
+* @Last Modified 2016-04-12
 */
 
 'use strict';
@@ -33,7 +33,6 @@ describe("Worker Queue", () => {
 
     it("should register for app lifecycle", () => {
       app.once.called.should.be.true;
-      app.onceAfter.calledWith('load').should.be.true;
       app.once.calledWith('stop').should.be.true;
     });
     it("should register a gather for workers", () => {
