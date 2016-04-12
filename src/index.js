@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-02-05 07:45:34
-* @Last Modified 2016-02-20
+* @Last Modified 2016-04-11
 */
 /**
  *
@@ -70,7 +70,7 @@ export default class WorkerQueue {
       .gather('worker')
       .respond('task')
       
-    app.onceAfter('load', this._connect.bind(this))
+    this._connect()
     app.once('stop', this._disconnect.bind(this))
   }
 
@@ -107,13 +107,14 @@ export default class WorkerQueue {
     // Redis needs separate connections for pub/sub
     this.publisher = redis.createClient(this.config.redis_url)
     this.publisher.on("error", (err) => {
-      this.app.log.debug("Publisher error", err)
+      this.app.log.error("Publisher error", err)
     })
     this.subscriber = redis.createClient(this.config.redis_url)
     this.subscriber.on("error", (err) => {
-      this.app.log.debug("Subscriber error", err)
+      this.app.log.error("Subscriber error", err)
     })
     this.subscriber.on("message", (channel, message) => {
+      console.log('message received', channel, message)
       message = JSON.parse(message)
       this.emit("worker-"+channel, message)
     })
