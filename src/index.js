@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-02-05 07:45:34
-* @Last Modified 2016-04-11
+* @Last Modified 2016-04-18
 */
 /**
  *
@@ -114,7 +114,6 @@ export default class WorkerQueue {
       this.app.log.error("Subscriber error", err)
     })
     this.subscriber.on("message", (channel, message) => {
-      console.log('message received', channel, message)
       message = JSON.parse(message)
       this.emit("worker-"+channel, message)
     })
