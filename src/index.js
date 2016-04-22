@@ -20,8 +20,8 @@
  * ### Register a worker handler
  * 
  * ```
- * app.get('worker-queue').worker('myBackgroundTask', (msg) => {
- *   console.log("Hello", msg.hi)
+ * app.get('worker-queue').worker('myBackgroundTask', ({data}) => {
+ *   this.app.log.debug("Hello", data.hi)
  * })
  * ```
  * 
@@ -34,12 +34,12 @@
  * Register two tasks, one for processing and one for notifications, and trigger the second from within the first handler.
  * 
  * ```
- * app.get('worker-queue').worker('myBackgroundTask', (msg) => {
- *   console.log("Hello", msg.hi)
+ * app.get('worker-queue').worker('myBackgroundTask', ({data}) => {
+ *   this.app.log.debug("Hello", data.hi)
  *   app.get('worker-queue').task('myBackgroundTask-complete', {result: true})
  * })
- * app.get('worker-queue').worker('myBackgroundTask-complete', (msg) => {
- *   console.log("Completed", msg.result)
+ * app.get('worker-queue').worker('myBackgroundTask-complete', ({data}) => {
+ *   this.app.log.debug("Completed", data.result)
  * })
  * ```
  * 
@@ -52,7 +52,8 @@
 
 'use strict';
 
-import redis from 'redis'
+import Queue from 'bull'
+import URL from 'url'
 
 const _defaultConfig = {
   redis_url: process.env.REDIS_URL || 'redis://localhost:6379'
@@ -70,8 +71,7 @@ export default class WorkerQueue {
       .gather('worker')
       .respond('task')
       
-    this._connect()
-    app.once('stop', this._disconnect.bind(this))
+    this._queues = {}
   }
 
   // Handlers
@@ -84,9 +84,9 @@ export default class WorkerQueue {
    */
   
   worker (taskName, handler) {
+    if(!this._queues[taskName]) this._queues[taskName] = new Queue(taskName, URL.parse(this.config.redis_url).port, URL.parse(this.config.redis_url).hostname);
     this.app.log.debug('Registering task worker for', taskName)
-    this.subscriber.subscribe(taskName)
-    this.on("worker-"+taskName, handler)
+    this._queues[taskName].process(handler)
   }
 
   /**
@@ -97,44 +97,7 @@ export default class WorkerQueue {
    */
   task (taskName, message) {
     this.app.log.debug('Task requested', taskName)
-    this.publisher.publish(taskName, JSON.stringify(message))
-  }
-  
-
-  // Internal
-
-  _connect () {
-    // Redis needs separate connections for pub/sub
-    this.publisher = redis.createClient(this.config.redis_url)
-    this.publisher.on("error", (err) => {
-      this.app.log.error("Publisher error", err)
-    })
-    this.publisher.on("reconnecting", (err) => {
-      this.app.log.error("Reconnecting to Redis", err)
-    })
-    this.subscriber = redis.createClient(this.config.redis_url)
-    this.subscriber.on("error", (err) => {
-      this.app.log.error("Subscriber error", err)
-    })
-    this.subscriber.on("reconnecting", (err) => {
-      this.app.log.error("Reconnecting to Redis", err)
-    })
-    this.subscriber.on("message", (channel, message) => {
-      message = JSON.parse(message)
-      this.emit("worker-"+channel, message)
-    })
-    this.app.log.debug('Connected to task queue pubsub')
-  }
-
-  _disconnect () {
-    if (this.publisher) {
-      this.publisher.quit()
-      delete this.publisher
-    }
-    if (this.subscriber) {
-      this.subscriber.unsubscribe()
-      this.subscriber.quit()
-      delete this.subscriber
-    }
+    if(!this._queues[taskName]) this._queues[taskName] = new Queue(taskName, URL.parse(this.config.redis_url).port, URL.parse(this.config.redis_url).hostname);
+    this._queues[taskName].add(message)
   }
 } 

@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-02-13 08:59:44
-* @Last Modified 2016-04-12
+* @Last Modified 2016-04-22
 */
 
 'use strict';
@@ -31,10 +31,6 @@ describe("Worker Queue", () => {
       module = new WorkerQueue(app);
     });
 
-    it("should register for app lifecycle", () => {
-      app.once.called.should.be.true;
-      app.once.calledWith('stop').should.be.true;
-    });
     it("should register a gather for workers", () => {
       return app.emit('load').then(() => {
         app.get.calledWith('worker-queue').should.be.true;
@@ -50,24 +46,14 @@ describe("Worker Queue", () => {
   describe("Tasks", () => {
     beforeEach(() => {
       module = new WorkerQueue(app);
-      module._connect()
     });
-    afterEach(() => {
-      module._disconnect()
-    })
-
     it("should process tasks", (done) => {
-      module.worker('testTask', (msg) => {
-        msg.hi.should.equal("World")
+      module.worker('testTask', ({data}) => {
+        data.hi.should.equal("World")
+        done()
       })
-      app.get().on.calledWith('worker-testTask').should.be.true
       setTimeout(() => {
         module.task('testTask', {hi: "World"})
-        setTimeout(() => {
-          app.get().emit.calledWith('worker-testTask').should.be.true
-          app.get().emit.firstCall.args[1].should.have.property('hi', 'World')
-          done()
-        }, 200)
       }, 200)
     });
   });
