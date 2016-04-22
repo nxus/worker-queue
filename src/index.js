@@ -74,6 +74,11 @@ export default class WorkerQueue {
     this._queues = {}
   }
 
+  _connect(name) {
+    let opts = {url: this.config.redis_url}
+    if(!this._queues[name]) this._queues[name] = new Queue(name, URL.parse(this.config.redis_url).port, URL.parse(this.config.redis_url).hostname, opts);
+  }
+
   // Handlers
 
   /**
@@ -84,7 +89,7 @@ export default class WorkerQueue {
    */
   
   worker (taskName, handler) {
-    if(!this._queues[taskName]) this._queues[taskName] = new Queue(taskName, URL.parse(this.config.redis_url).port, URL.parse(this.config.redis_url).hostname);
+    this._connect(taskName)
     this.app.log.debug('Registering task worker for', taskName)
     this._queues[taskName].process(handler)
   }
@@ -97,7 +102,7 @@ export default class WorkerQueue {
    */
   task (taskName, message) {
     this.app.log.debug('Task requested', taskName)
-    if(!this._queues[taskName]) this._queues[taskName] = new Queue(taskName, URL.parse(this.config.redis_url).port, URL.parse(this.config.redis_url).hostname);
+    this._connect(taskName)
     this._queues[taskName].add(message)
   }
 } 
