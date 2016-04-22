@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-02-05 07:45:34
-* @Last Modified 2016-04-18
+* @Last Modified 2016-04-22
 */
 /**
  *
@@ -109,9 +109,15 @@ export default class WorkerQueue {
     this.publisher.on("error", (err) => {
       this.app.log.error("Publisher error", err)
     })
+    this.publisher.on("reconnecting", (err) => {
+      this.app.log.error("Reconnecting to Redis", err)
+    })
     this.subscriber = redis.createClient(this.config.redis_url)
     this.subscriber.on("error", (err) => {
       this.app.log.error("Subscriber error", err)
+    })
+    this.subscriber.on("reconnecting", (err) => {
+      this.app.log.error("Reconnecting to Redis", err)
     })
     this.subscriber.on("message", (channel, message) => {
       message = JSON.parse(message)
