@@ -54,6 +54,14 @@ Cleans the current queue for the given taskName. Good idea to do this on occasio
 
 -   `taskName` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the queue to clean. If not provided, all queues are cleaned.
 
+### empty
+
+Emptys the current queue for the given taskName.
+
+**Parameters**
+
+-   `taskName` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the queue to clean. If not provided, all queues are emptied.
+
 ### task
 
 Request handling of a background task
