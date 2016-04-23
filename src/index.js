@@ -121,11 +121,30 @@ export default class WorkerQueue {
       this.app.log.debug('Cleaning all queues')
       return Promise.mapSeries(_.values(this._queues), (queue) => {
         return queue.clean(60000)
+        return queue.clean(60000, 'failed')
       })
     } else {
       if(!this._queues[taskName]) return this.app.log.error('Queue does not exist to clean', taskName)
       this.app.log.debug('Cleaning Queue', taskName)
       return this._queues[taskName].clean(60000)
+      return this._queues[taskName].clean(60000, 'failed')
+    }
+  }
+
+  /**
+   * Emptys the current queue for the given taskName. 
+   * @param  {string} taskName The name of the queue to clean. If not provided, all queues are emptied.
+   */
+  empty(taskName) {
+    if(!this._queues[taskName]) {
+      this.app.log.debug('Emptying all queues')
+      return Promise.mapSeries(_.values(this._queues), (queue) => {
+        return queue.empty()
+      })
+    } else {
+      if(!this._queues[taskName]) return this.app.log.error('Queue does not exist to empty', taskName)
+      this.app.log.debug('Emptying Queue', taskName)
+      return this._queues[taskName].empty()
     }
   }
 } 
