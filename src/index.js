@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-02-05 07:45:34
-* @Last Modified 2016-04-22
+* @Last Modified 2016-04-23
 */
 /**
  *
@@ -54,6 +54,8 @@
 
 import Queue from 'bull'
 import URL from 'url'
+import Promise from 'bluebird'
+import _ from 'underscore'
 
 const _defaultConfig = {
   redis_url: process.env.REDIS_URL || 'redis://localhost:6379'
@@ -70,6 +72,7 @@ export default class WorkerQueue {
     app.get('worker-queue').use(this)
       .gather('worker')
       .respond('task')
+      .respond('clean')
       
     this._queues = {}
   }
@@ -107,5 +110,21 @@ export default class WorkerQueue {
     this.app.log.debug('Task requested', taskName)
     this._connect(taskName)
     this._queues[taskName].add(message)
+  }
+
+  /**
+   * Cleans the current queue for the given taskName. Good idea to do this on occasion as Bull will keep all completed tasks in Redis. 
+   * @param  {string} taskName The name of the queue to clean. If not provided, all queues are cleaned.
+   */
+  clean(taskName) {
+    if(!this._queues[taskName]) {
+      this.app.log.debug('Cleaning all queues')
+      return Promise.mapSeries(_.values(this._queues), (queue) => {
+        return queue.clean(60000)
+      })
+    } else {
+      this.app.log.debug('Cleaning Queue', taskName)
+      return this._queues[taskName].clean(60000)
+    }
   }
 } 
