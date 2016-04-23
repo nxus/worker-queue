@@ -46,6 +46,14 @@ Register two tasks, one for processing and one for notifications, and trigger th
 
 Worker Queue module for background tasks
 
+### clean
+
+Cleans the current queue for the given taskName. Good idea to do this on occasion as Bull will keep all completed tasks in Redis.
+
+**Parameters**
+
+-   `taskName` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the queue to clean. If not provided, all queues are cleaned.
+
 ### task
 
 Request handling of a background task
