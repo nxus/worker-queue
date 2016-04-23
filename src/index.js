@@ -123,6 +123,7 @@ export default class WorkerQueue {
         return queue.clean(60000)
       })
     } else {
+      if(!this._queues[taskName]) return this.app.log.error('Queue does not exist to clean', taskName)
       this.app.log.debug('Cleaning Queue', taskName)
       return this._queues[taskName].clean(60000)
     }
