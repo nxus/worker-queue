@@ -8,7 +8,7 @@ Using Redis for pub/sub background tasks
 
 ### Installation
 
-    > npm install @nxus/worker-queue --save
+    > npm install nxus-worker-queue --save
 
 ### Usage
 
