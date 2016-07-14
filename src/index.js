@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-02-05 07:45:34
-* @Last Modified 2016-04-23
+* @Last Modified 2016-05-20
 */
 /**
  *
@@ -11,7 +11,7 @@
  * 
  * ## Installation
  * 
- *     > npm install @nxus/worker-queue --save
+ *     > npm install nxus-worker-queue --save
  * 
  * ## Usage
  * 

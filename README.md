@@ -1,4 +1,4 @@
-# @nxus/worker-queue
+# nxus-worker-queue
 
 ## 
 

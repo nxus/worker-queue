@@ -1,14 +1,14 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-02-13 08:59:44
-* @Last Modified 2016-04-22
+* @Last Modified 2016-05-20
 */
 
 'use strict';
 
 import WorkerQueue from '../src/'
 
-import TestApp from '@nxus/core/lib/test/support/TestApp';
+import TestApp from 'nxus-core/lib/test/support/TestApp';
 
 describe("Worker Queue", () => {
   var module, app;
