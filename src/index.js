@@ -73,6 +73,7 @@ export default class WorkerQueue {
       .gather('worker')
       .respond('task')
       .respond('clean')
+      .respond('empty')
       
     this._queues = {}
   }
@@ -103,7 +104,8 @@ export default class WorkerQueue {
   /**
    * Request handling of a background task
    * @param {string} taskName Name of the task (channel) to publish to
-   * @param {object} message Options for the task worker
+   * @param {object} message Options for the task worker;
+   *   must be JSON serializable
    * @example app.get('worker-queue').task('backgroundJob', {hi: 'world'})
    */
   task (taskName, message) {
@@ -133,7 +135,7 @@ export default class WorkerQueue {
 
   /**
    * Emptys the current queue for the given taskName. 
-   * @param  {string} taskName The name of the queue to clean. If not provided, all queues are emptied.
+   * @param  {string} taskName The name of the queue to empty. If not provided, all queues are emptied.
    */
   empty(taskName) {
     if(!this._queues[taskName]) {
