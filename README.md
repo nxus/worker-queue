@@ -60,7 +60,7 @@ Emptys the current queue for the given taskName.
 
 **Parameters**
 
--   `taskName` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the queue to clean. If not provided, all queues are emptied.
+-   `taskName` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the queue to empty. If not provided, all queues are emptied.
 
 ### task
 
@@ -69,7 +69,8 @@ Request handling of a background task
 **Parameters**
 
 -   `taskName` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** Name of the task (channel) to publish to
--   `message` **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** Options for the task worker
+-   `message` **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** Options for the task worker;
+      must be JSON serializable
 
 **Examples**
 
