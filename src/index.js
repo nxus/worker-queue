@@ -119,7 +119,7 @@ export default class WorkerQueue {
    * @param  {string} taskName The name of the queue to clean. If not provided, all queues are cleaned.
    */
   clean(taskName) {
-    if(!this._queues[taskName]) {
+    if(!taskName) {
       this.app.log.debug('Cleaning all queues')
       return Promise.mapSeries(_.values(this._queues), (queue) => {
         return queue.clean(60000)
@@ -138,7 +138,7 @@ export default class WorkerQueue {
    * @param  {string} taskName The name of the queue to empty. If not provided, all queues are emptied.
    */
   empty(taskName) {
-    if(!this._queues[taskName]) {
+    if(!taskName) {
       this.app.log.debug('Emptying all queues')
       return Promise.mapSeries(_.values(this._queues), (queue) => {
         return queue.empty()
