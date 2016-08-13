@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-02-05 07:45:34
-* @Last Modified 2016-05-20
+* @Last Modified 2016-08-10
 */
 /**
  *
@@ -76,6 +76,12 @@ export default class WorkerQueue {
       .respond('empty')
       
     this._queues = {}
+
+    this.app.on('stop', () => {
+      _.each(this._queues, (queue, name) => {
+        return queue.close().then(() => {this.app.log.debug('Queue closed', name)})
+      })
+    })
   }
 
   _connect(name) {
@@ -84,6 +90,9 @@ export default class WorkerQueue {
     if(parsed.auth)
       opts.password = parsed.auth.substr(parsed.auth.indexOf(":")+1, parsed.auth.length-1)
     if(!this._queues[name]) this._queues[name] = new Queue(name, URL.parse(this.config.redis_url).port, URL.parse(this.config.redis_url).hostname, opts);
+    this._queues[name].on('error', (error) => {
+      this.app.log.error(error)
+    })
   }
 
   // Handlers
