@@ -1,6 +1,6 @@
 {
   "name": "nxus-worker-queue",
-  "version": "3.0.0-2",
+  "version": "3.0.0",
   "description": "Nxus worker queue for background tasks",
   "main": "lib",
   "scripts": {
