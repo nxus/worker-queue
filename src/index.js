@@ -91,10 +91,12 @@ export default class WorkerQueue {
     let opts = {url: this.config.redis_url}
     if(parsed.auth)
       opts.password = parsed.auth.substr(parsed.auth.indexOf(":")+1, parsed.auth.length-1)
-    if(!this._queues[name]) this._queues[name] = new Queue(name, URL.parse(this.config.redis_url).port, URL.parse(this.config.redis_url).hostname, opts);
-    this._queues[name].on('error', (error) => {
-      this.app.log.error(error)
-    })
+    if(!this._queues[name]) {
+      this._queues[name] = new Queue(name, URL.parse(this.config.redis_url).port, URL.parse(this.config.redis_url).hostname, opts);
+      this._queues[name].on('error', (error) => {
+        this.app.log.error(error)
+      })
+    }
   }
 
   // Handlers

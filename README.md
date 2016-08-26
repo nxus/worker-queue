@@ -79,17 +79,34 @@ app.get('worker-queue').task('backgroundJob', {hi: 'world'})
 
 ## clean
 
-Cleans the current queue for the given taskName. Good idea to do this on occasion as Bull will keep all completed tasks in Redis.
+Cleans the current queue for the given taskName.
 
 **Parameters**
 
--   `taskName` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the queue to clean. If not provided, all queues are cleaned.
--   `type`   (optional, default `'all'`)
--   `delay`   (optional, default `60000`)
+-   `taskName` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The queue/task name to clean.
+-   `type` **\[[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)](default 'completed')** The type of message to clean. Defaults to 'completed'.
+-   `delay` **\[[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)](default 60000)** The grace period. Messages older than this will be cleaned. Defaults to 60 seconds.
+
+## cleanAll
+
+Cleans all queues.
+
+**Parameters**
+
+-   `type` **\[[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)](default 'completed')** The type of message to clean. Defaults to 'completed'.
+-   `delay` **\[[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)](default 60000)** The grace period. Messages older than this will be cleaned. Defaults to 60 seconds.
 
 ## empty
 
 Emptys the current queue for the given taskName.
+
+**Parameters**
+
+-   `taskName` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the queue to empty. If not provided, all queues are emptied.
+
+## emptyAll
+
+Emptys the all queues.
 
 **Parameters**
 
