@@ -127,18 +127,30 @@ export default class WorkerQueue {
    * Cleans the current queue for the given taskName. Good idea to do this on occasion as Bull will keep all completed tasks in Redis. 
    * @param  {string} taskName The name of the queue to clean. If not provided, all queues are cleaned.
    */
-  clean(taskName) {
+  clean(taskName, type = 'all', delay = 60000) {
     if(!taskName) {
       this.app.log.debug('Cleaning all queues')
       return Promise.mapSeries(_.values(this._queues), (queue) => {
-        return Promise.all([queue.clean(1000, 'completed')
-          , queue.clean(1000, 'failed')])
+        this.app.log.debug('Cleaning queue', queue.name, type)
+        if(type === 'all')
+          return Promise.all([queue.clean(delay, 'completed')
+            , queue.clean(delay, 'failed'),
+            , queue.clean(delay, 'delayed'),
+            , queue.clean(delay, 'wait')])
+        else
+          return queue.clean(delay, type)
       })
     } else {
       if(!this._queues[taskName]) return this.app.log.error('Queue does not exist to clean', taskName)
       this.app.log.debug('Cleaning Queue', taskName)
-        return Promise.all([queue.clean(1000, 'completed')
-          , queue.clean(1000, 'failed')])
+      let queue = this._queues[taskName]
+      if(type === 'all')
+        return Promise.all([queue.clean(delay, 'completed')
+            , queue.clean(delay, 'failed'),
+            , queue.clean(delay, 'delayed'),
+            , queue.clean(delay, 'wait')])
+      else
+        return queue.clean(delay, type)
     }
   }
 
