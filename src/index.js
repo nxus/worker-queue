@@ -131,14 +131,14 @@ export default class WorkerQueue {
     if(!taskName) {
       this.app.log.debug('Cleaning all queues')
       return Promise.mapSeries(_.values(this._queues), (queue) => {
-        return queue.clean(1000, 'completed')
-        return queue.clean(1000, 'failed')
+        return Promise.all([queue.clean(1000, 'completed')
+          , queue.clean(1000, 'failed')])
       })
     } else {
       if(!this._queues[taskName]) return this.app.log.error('Queue does not exist to clean', taskName)
       this.app.log.debug('Cleaning Queue', taskName)
-      return this._queues[taskName].clean(1000, 'completed')
-      return this._queues[taskName].clean(1000, 'failed')
+        return Promise.all([queue.clean(1000, 'completed')
+          , queue.clean(1000, 'failed')])
     }
   }
 
