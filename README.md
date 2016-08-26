@@ -84,6 +84,8 @@ Cleans the current queue for the given taskName. Good idea to do this on occasio
 **Parameters**
 
 -   `taskName` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the queue to clean. If not provided, all queues are cleaned.
+-   `type`   (optional, default `'all'`)
+-   `delay`   (optional, default `60000`)
 
 ## empty
 
