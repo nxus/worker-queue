@@ -73,7 +73,9 @@ export default class WorkerQueue {
       .gather('worker')
       .respond('task')
       .respond('clean')
+      .respond('cleanAll')
       .respond('empty')
+      .respond('emptyAll')
       
     this._queues = {}
 
@@ -124,34 +126,28 @@ export default class WorkerQueue {
   }
 
   /**
-   * Cleans the current queue for the given taskName. Good idea to do this on occasion as Bull will keep all completed tasks in Redis. 
-   * @param  {string} taskName The name of the queue to clean. If not provided, all queues are cleaned.
+   * Cleans the current queue for the given taskName. 
+   * @param  {string} taskName The queue/task name to clean.
+   * @param  {String} type     The type of message to clean. Defaults to 'completed'.
+   * @param  {Number} delay    The grace period. Messages older than this will be cleaned. Defaults to 60 seconds.
    */
-  clean(taskName, type = 'all', delay = 60000) {
-    if(!taskName) {
-      this.app.log.debug('Cleaning all queues')
-      return Promise.mapSeries(_.values(this._queues), (queue) => {
-        this.app.log.debug('Cleaning queue', queue.name, type)
-        if(type === 'all')
-          return Promise.all([queue.clean(delay, 'completed')
-            , queue.clean(delay, 'failed'),
-            , queue.clean(delay, 'delayed'),
-            , queue.clean(delay, 'wait')])
-        else
-          return queue.clean(delay, type)
-      })
-    } else {
-      if(!this._queues[taskName]) return this.app.log.error('Queue does not exist to clean', taskName)
-      this.app.log.debug('Cleaning Queue', taskName)
-      let queue = this._queues[taskName]
-      if(type === 'all')
-        return Promise.all([queue.clean(delay, 'completed')
-            , queue.clean(delay, 'failed'),
-            , queue.clean(delay, 'delayed'),
-            , queue.clean(delay, 'wait')])
-      else
-        return queue.clean(delay, type)
-    }
+  clean(taskName, type = 'completed', delay = 60000) {
+    if(!this._queues[taskName]) return this.app.log.error('Queue does not exist to clean', taskName)
+    this.app.log.debug('Cleaning Queue', taskName+":"+type)
+    let queue = this._queues[taskName]
+    return queue.clean(delay, type)
+  }
+
+  /**
+   * Cleans all queues. 
+   * @param  {String} type     The type of message to clean. Defaults to 'completed'.
+   * @param  {Number} delay    The grace period. Messages older than this will be cleaned. Defaults to 60 seconds.
+   */
+  cleanAll(type = 'completed', delay = 60000) {
+    this.app.log.debug('Cleaning all queues:', type)
+    return Promise.mapSeries(_.values(this._queues), (queue) => {
+      return queue.clean(delay, type)
+    })
   }
 
   /**
@@ -159,15 +155,19 @@ export default class WorkerQueue {
    * @param  {string} taskName The name of the queue to empty. If not provided, all queues are emptied.
    */
   empty(taskName) {
-    if(!taskName) {
-      this.app.log.debug('Emptying all queues')
-      return Promise.mapSeries(_.values(this._queues), (queue) => {
-        return queue.empty()
-      })
-    } else {
-      if(!this._queues[taskName]) return this.app.log.error('Queue does not exist to empty', taskName)
-      this.app.log.debug('Emptying Queue', taskName)
-      return this._queues[taskName].empty()
-    }
+    if(!this._queues[taskName]) return this.app.log.error('Queue does not exist to empty', taskName)
+    this.app.log.debug('Emptying Queue', taskName)
+    return this._queues[taskName].empty()
+  }
+
+  /**
+   * Emptys the all queues. 
+   * @param  {string} taskName The name of the queue to empty. If not provided, all queues are emptied.
+   */
+  emptyAll() {
+    this.app.log.debug('Emptying all queues')
+    return Promise.mapSeries(_.values(this._queues), (queue) => {
+      return queue.empty()
+    })
   }
 } 
