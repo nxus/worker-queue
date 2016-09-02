@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-02-05 07:45:34
-* @Last Modified 2016-08-26
+* @Last Modified 2016-09-02
 */
 /**
  *
@@ -95,6 +95,9 @@ export default class WorkerQueue {
       this._queues[name] = new Queue(name, URL.parse(this.config.redis_url).port, URL.parse(this.config.redis_url).hostname, opts);
       this._queues[name].on('error', (error) => {
         this.app.log.error(error)
+      })
+      this._queues[name].on('stalled', (job) => {
+        this.app.log.warn("Worker-queue task stalled", job)
       })
     }
   }
