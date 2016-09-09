@@ -2,6 +2,8 @@
 
 ## 
 
+## Worker Queue Module
+
 [![Build Status](https://travis-ci.org/nxus/worker-queue.svg?branch=master)](https://travis-ci.org/nxus/worker-queue)
 
 Using Redis for pub/sub background tasks
@@ -94,7 +96,7 @@ Cleans the current queue for the given taskName.
 
 ### cleanAll
 
-Cleans all queues.
+Cleans all queues for the specified message type.
 
 **Parameters**
 
