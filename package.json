@@ -6,10 +6,10 @@
   "scripts": {
     "preversion": "npm test",
     "postversion": "npm run build-docs && git push && git push --tags",
-    "test": "npm run compile && NODE_ENV=test mocha --compilers js:babel-core/register -R spec",
+    "test": "NODE_ENV=test mocha --recursive --compilers js:babel-register -R spec src/test/*",
     "compile": "babel src --out-dir lib",
     "prepublish": "npm run compile",
-    "build-docs": "export NAME=`npm view . name`; export VERSION=`npm view . version`; documentation readme ./src/*.js --name $NAME --project-version $VERSION --readme-file ./README.md -s $NAME",
+    "build-docs": "export NAME=`npm view . name`; export VERSION=`npm view . version`; documentation readme ./src/index.js ./src/modules/*/*.js --name $NAME --project-version $VERSION --readme-file ./README.md -s $NAME",
     "publish-docs": "npm run build-docs && git add ./README.md && git commit -m 'Updated README API Docs' && git push"
   },
   "repository": {
@@ -26,10 +26,8 @@
     "bluebird": "^3.3.5",
     "bull": "^1.0.0",
     "redis": "^2.4.2",
-    "underscore": "^1.8.3"
-  },
-  "peerDependencies": {
-    "nxus-core": "^3.0.0"
+    "underscore": "^1.8.3",
+    "nxus-core": "^4.0.0-0"
   },
   "devDependencies": {
     "mocha": "^2.2.5",

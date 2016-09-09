@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-02-05 07:45:34
-* @Last Modified 2016-09-02
+* @Last Modified 2016-09-09
 */
 /**
  *
@@ -21,7 +21,7 @@
  * 
  * ```
  * app.get('worker-queue').worker('myBackgroundTask', ({data}) => {
- *   this.app.log.debug("Hello", data.hi)
+ *   this.log.debug("Hello", data.hi)
  * })
  * ```
  * 
@@ -35,11 +35,11 @@
  * 
  * ```
  * app.get('worker-queue').worker('myBackgroundTask', ({data}) => {
- *   this.app.log.debug("Hello", data.hi)
+ *   this.log.debug("Hello", data.hi)
  *   app.get('worker-queue').task('myBackgroundTask-complete', {result: true})
  * })
  * app.get('worker-queue').worker('myBackgroundTask-complete', ({data}) => {
- *   this.app.log.debug("Completed", data.result)
+ *   this.log.debug("Completed", data.result)
  * })
  * ```
  * 
@@ -57,33 +57,28 @@ import URL from 'url'
 import Promise from 'bluebird'
 import _ from 'underscore'
 
-const _defaultConfig = {
-  redis_url: process.env.REDIS_URL || 'redis://localhost:6379'
-}
-
+import {application as app, NxusModule} from 'nxus-core'
+ 
 /**
  * Worker Queue module for background tasks
  */
-export default class WorkerQueue {
-  constructor(app) {
-    this.app = app
-    this.config = Object.assign(_defaultConfig, app.config['worker-queue'])
+class WorkerQueue extends NxusModule {
+  constructor() {
+    super()
 
-    app.get('worker-queue').use(this)
-      .gather('worker')
-      .respond('task')
-      .respond('clean')
-      .respond('cleanAll')
-      .respond('empty')
-      .respond('emptyAll')
-      
     this._queues = {}
 
-    this.app.on('stop', () => {
+    app.once('stop', () => {
       _.each(this._queues, (queue, name) => {
-        return queue.close().then(() => {this.app.log.debug('Queue closed', name)})
+        return queue.close().then(() => {this.log.debug('Queue closed', name)})
       })
     })
+  }
+
+  _userConfig() {
+    return {
+      redis_url: 'redis://localhost:6379'
+    }
   }
 
   _connect(name) {
@@ -94,10 +89,10 @@ export default class WorkerQueue {
     if(!this._queues[name]) {
       this._queues[name] = new Queue(name, URL.parse(this.config.redis_url).port, URL.parse(this.config.redis_url).hostname, opts);
       this._queues[name].on('error', (error) => {
-        this.app.log.error(error)
+        this.log.error(error)
       })
       this._queues[name].on('stalled', (job) => {
-        this.app.log.warn("Worker-queue task stalled", job)
+        this.log.warn("Worker-queue task stalled", job)
       })
     }
   }
@@ -113,7 +108,7 @@ export default class WorkerQueue {
   
   worker (taskName, handler) {
     this._connect(taskName)
-    this.app.log.debug('Registering task worker for', taskName)
+    this.log.debug('Registering task worker for', taskName)
     this._queues[taskName].process(handler)
   }
 
@@ -125,7 +120,7 @@ export default class WorkerQueue {
    * @example app.get('worker-queue').task('backgroundJob', {hi: 'world'})
    */
   task (taskName, message) {
-    this.app.log.debug('Task requested', taskName)
+    this.log.debug('Task requested', taskName)
     this._connect(taskName)
     this._queues[taskName].add(message)
   }
@@ -137,8 +132,8 @@ export default class WorkerQueue {
    * @param  {Number} delay    The grace period. Messages older than this will be cleaned. Defaults to 60 seconds.
    */
   clean(taskName, type = 'completed', delay = 60000) {
-    if(!this._queues[taskName]) return this.app.log.error('Queue does not exist to clean', taskName)
-    this.app.log.debug('Cleaning Queue', taskName+":"+type)
+    if(!this._queues[taskName]) return this.log.error('Queue does not exist to clean', taskName)
+    this.log.debug('Cleaning Queue', taskName+":"+type)
     let queue = this._queues[taskName]
     return queue.clean(delay, type)
   }
@@ -149,7 +144,7 @@ export default class WorkerQueue {
    * @param  {Number} delay    The grace period. Messages older than this will be cleaned. Defaults to 60 seconds.
    */
   cleanAll(type = 'completed', delay = 60000) {
-    this.app.log.debug('Cleaning all queues:', type)
+    this.log.debug('Cleaning all queues:', type)
     return Promise.mapSeries(_.values(this._queues), (queue) => {
       return queue.clean(delay, type)
     })
@@ -160,8 +155,8 @@ export default class WorkerQueue {
    * @param  {string} taskName The name of the queue to empty. If not provided, all queues are emptied.
    */
   empty(taskName) {
-    if(!this._queues[taskName]) return this.app.log.error('Queue does not exist to empty', taskName)
-    this.app.log.debug('Emptying Queue', taskName)
+    if(!this._queues[taskName]) return this.log.error('Queue does not exist to empty', taskName)
+    this.log.debug('Emptying Queue', taskName)
     return this._queues[taskName].empty()
   }
 
@@ -170,9 +165,12 @@ export default class WorkerQueue {
    * @param  {string} taskName The name of the queue to empty. If not provided, all queues are emptied.
    */
   emptyAll() {
-    this.app.log.debug('Emptying all queues')
+    this.log.debug('Emptying all queues')
     return Promise.mapSeries(_.values(this._queues), (queue) => {
       return queue.empty()
     })
   }
 } 
+
+var workerQueue = WorkerQueue.getProxy()
+export {WorkerQueue as default, workerQueue}
