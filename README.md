@@ -16,37 +16,42 @@ For each task, you need to define a unique task name.
 
 #### Register a worker handler
 
-    app.get('worker-queue').worker('myBackgroundTask', ({data}) => {
-      this.app.log.debug("Hello", data.hi)
+    import {workerQueue} from 'nxus-worker-queue'
+    workerQueue.worker('myBackgroundTask', ({data}) => {
+      this.log.debug("Hello", data.hi)
     })
 
 #### Request task processing
 
-`app.get('worker-queue').task('myBackgroundTask', {hi: world})`
+    import {workerQueue} from 'nxus-worker-queue'
+    workerQueue.task('myBackgroundTask', {hi: world})
 
 #### Receive notifications of completed tasks
 
 Register two tasks, one for processing and one for notifications, and trigger the second from within the first handler.
 
-    app.get('worker-queue').worker('myBackgroundTask', ({data}) => {
-      this.app.log.debug("Hello", data.hi)
+    import {workerQueue} from 'nxus-worker-queue'
+    workerQueue.worker('myBackgroundTask', ({data}) => {
+      this.log.debug("Hello", data.hi)
       app.get('worker-queue').task('myBackgroundTask-complete', {result: true})
     })
-    app.get('worker-queue').worker('myBackgroundTask-complete', ({data}) => {
-      this.app.log.debug("Completed", data.result)
+    workerQueue.worker('myBackgroundTask-complete', ({data}) => {
+      this.log.debug("Completed", data.result)
     })
 
-`app.get('worker-queue').task('myBackgroundTask', {hi: world})`
+`workerQueue.task('myBackgroundTask', {hi: world})`
 
 ## API
 
 * * *
 
-## index
+## WorkerQueue
+
+**Extends NxusModule**
 
 Worker Queue module for background tasks
 
-## worker
+### worker
 
 Provide a task handler
 
@@ -61,7 +66,7 @@ Provide a task handler
 app.get('worker-queue').worker('backgroundJob', (msg) -> {})
 ```
 
-## task
+### task
 
 Request handling of a background task
 
@@ -77,7 +82,7 @@ Request handling of a background task
 app.get('worker-queue').task('backgroundJob', {hi: 'world'})
 ```
 
-## clean
+### clean
 
 Cleans the current queue for the given taskName.
 
@@ -87,7 +92,7 @@ Cleans the current queue for the given taskName.
 -   `type` **\[[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)](default 'completed')** The type of message to clean. Defaults to 'completed'.
 -   `delay` **\[[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)](default 60000)** The grace period. Messages older than this will be cleaned. Defaults to 60 seconds.
 
-## cleanAll
+### cleanAll
 
 Cleans all queues.
 
@@ -96,7 +101,7 @@ Cleans all queues.
 -   `type` **\[[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)](default 'completed')** The type of message to clean. Defaults to 'completed'.
 -   `delay` **\[[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)](default 60000)** The grace period. Messages older than this will be cleaned. Defaults to 60 seconds.
 
-## empty
+### empty
 
 Emptys the current queue for the given taskName.
 
@@ -104,7 +109,7 @@ Emptys the current queue for the given taskName.
 
 -   `taskName` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the queue to empty. If not provided, all queues are emptied.
 
-## emptyAll
+### emptyAll
 
 Emptys the all queues.
 
