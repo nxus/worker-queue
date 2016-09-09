@@ -8,8 +8,12 @@
 
 import WorkerQueue from '../'
 
+import {application as app} from 'nxus-core'
+
+import sinon from 'sinon'
+
 describe("Worker Queue", () => {
-  var module, app
+  var module
  
   beforeEach(function() {
     this.timeout(3000)
@@ -23,7 +27,7 @@ describe("Worker Queue", () => {
       module.should.not.be.null
     })
   })
-  
+
   describe("Init", () => {
     beforeEach(() => {
       module = new WorkerQueue()
@@ -43,6 +47,26 @@ describe("Worker Queue", () => {
       setTimeout(() => {
         module.task('testTask', {hi: "World"})
       }, 200)
+    })
+  })
+
+  describe("Auto clean", () => {
+    before(() => {
+      module = new WorkerQueue()
+    })
+
+    it("Should have a default auto clean interval of 60000", () => {
+      module.config.cleanInterval.should.equal(3600000)
+    })
+
+    it("Should auto clean based on user supplied cleanInterval", () => {
+      app.config['worker-queue'].cleanInterval = 500
+      module = new WorkerQueue()
+      module.cleanAll = sinon.spy()
+      setTimeout(() => {
+        module.cleanAll.called().should.be.true
+        module.cleanAll.calledWith('failed').should.be.true
+      })
     })
   })
 })

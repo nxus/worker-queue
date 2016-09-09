@@ -77,12 +77,27 @@ class WorkerQueue extends NxusModule {
       _.each(this._queues, (queue, name) => {
         return queue.close().then(() => {this.log.debug('Queue closed', name)})
       })
+
+      if(this._cleanInterval) clearInterval(this._cleanInterval)
     })
+
+    if(this.config.cleanInterval) {
+      this._cleanInterval = setInterval(() => {
+        this.cleanAll()
+        this.cleanAll('failed')
+      }, this.config.cleanInterval)
+    }
   }
 
   _userConfig() {
     return {
       redis_url: 'redis://localhost:6379'
+    }
+  }
+
+  _defaultConfig() {
+    return {
+      cleanInterval: 3600000
     }
   }
 
@@ -144,7 +159,7 @@ class WorkerQueue extends NxusModule {
   }
 
   /**
-   * Cleans all queues. 
+   * Cleans all queues for the specified message type. 
    * @param  {String} type     The type of message to clean. Defaults to 'completed'.
    * @param  {Number} delay    The grace period. Messages older than this will be cleaned. Defaults to 60 seconds.
    */
