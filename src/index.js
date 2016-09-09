@@ -20,30 +20,35 @@
  * ### Register a worker handler
  * 
  * ```
- * app.get('worker-queue').worker('myBackgroundTask', ({data}) => {
+ * import {workerQueue} from 'nxus-worker-queue'
+ * workerQueue.worker('myBackgroundTask', ({data}) => {
  *   this.log.debug("Hello", data.hi)
  * })
  * ```
  * 
  * ### Request task processing
  * 
- * `app.get('worker-queue').task('myBackgroundTask', {hi: world})`
+ * ```
+ * import {workerQueue} from 'nxus-worker-queue'
+ * workerQueue.task('myBackgroundTask', {hi: world})
+ * ```
  * 
  * ### Receive notifications of completed tasks
  * 
  * Register two tasks, one for processing and one for notifications, and trigger the second from within the first handler.
  * 
  * ```
- * app.get('worker-queue').worker('myBackgroundTask', ({data}) => {
+ * import {workerQueue} from 'nxus-worker-queue'
+ * workerQueue.worker('myBackgroundTask', ({data}) => {
  *   this.log.debug("Hello", data.hi)
  *   app.get('worker-queue').task('myBackgroundTask-complete', {result: true})
  * })
- * app.get('worker-queue').worker('myBackgroundTask-complete', ({data}) => {
+ * workerQueue.worker('myBackgroundTask-complete', ({data}) => {
  *   this.log.debug("Completed", data.result)
  * })
  * ```
  * 
- * `app.get('worker-queue').task('myBackgroundTask', {hi: world})`
+ * `workerQueue.task('myBackgroundTask', {hi: world})`
  * 
  * 
  * # API
