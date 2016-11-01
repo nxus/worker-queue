@@ -42,7 +42,7 @@
  * import {workerQueue} from 'nxus-worker-queue'
  * workerQueue.worker('myBackgroundTask', ({data}) => {
  *   this.log.debug("Hello", data.hi)
- *   app.get('worker-queue').task('myBackgroundTask-complete', {result: true})
+ *   workerQueue.task('myBackgroundTask-complete', {result: true})
  * })
  * workerQueue.worker('myBackgroundTask-complete', ({data}) => {
  *   this.log.debug("Completed", data.result)
@@ -124,7 +124,7 @@ class WorkerQueue extends NxusModule {
    * Provide a task handler
    * @param {string} taskName Name of the task (channel) to listen for
    * @param {function} handler Handler for processing task requests
-   * @example app.get('worker-queue').worker('backgroundJob', (msg) -> {})
+   * @example workerQueue.worker('backgroundJob', (msg) -> {})
    */
   
   worker (taskName, handler) {
@@ -138,7 +138,7 @@ class WorkerQueue extends NxusModule {
    * @param {string} taskName Name of the task (channel) to publish to
    * @param {object} message Options for the task worker;
    *   must be JSON serializable
-   * @example app.get('worker-queue').task('backgroundJob', {hi: 'world'})
+   * @example workerQueue.task('backgroundJob', {hi: 'world'})
    */
   task (taskName, message) {
     this.log.debug('Task requested', taskName)
