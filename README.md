@@ -35,7 +35,7 @@ Register two tasks, one for processing and one for notifications, and trigger th
     import {workerQueue} from 'nxus-worker-queue'
     workerQueue.worker('myBackgroundTask', ({data}) => {
       this.log.debug("Hello", data.hi)
-      app.get('worker-queue').task('myBackgroundTask-complete', {result: true})
+      workerQueue.task('myBackgroundTask-complete', {result: true})
     })
     workerQueue.worker('myBackgroundTask-complete', ({data}) => {
       this.log.debug("Completed", data.result)
@@ -65,7 +65,7 @@ Provide a task handler
 **Examples**
 
 ```javascript
-app.get('worker-queue').worker('backgroundJob', (msg) -> {})
+workerQueue.worker('backgroundJob', (msg) -> {})
 ```
 
 ### task
@@ -81,7 +81,7 @@ Request handling of a background task
 **Examples**
 
 ```javascript
-app.get('worker-queue').task('backgroundJob', {hi: 'world'})
+workerQueue.task('backgroundJob', {hi: 'world'})
 ```
 
 ### clean
