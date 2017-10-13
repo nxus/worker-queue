@@ -143,7 +143,7 @@ class WorkerQueue extends NxusModule {
   task (taskName, message) {
     this.log.debug('Task requested', taskName)
     this._connect(taskName)
-    this._queues[taskName].add(message)
+    return this._queues[taskName].add(message)
   }
 
   /**

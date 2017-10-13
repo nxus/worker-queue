@@ -60,7 +60,7 @@ describe("Worker Queue", () => {
     })
 
     it("Should auto clean based on user supplied cleanInterval", () => {
-      app.config['worker-queue'].cleanInterval = 500
+      app.config['worker-queue'] = {cleanInterval: 500}
       module = new WorkerQueue()
       module.cleanAll = sinon.spy()
       setTimeout(() => {
