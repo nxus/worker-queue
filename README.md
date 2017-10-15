@@ -14,6 +14,19 @@ Using Redis for pub/sub background tasks
 
     > npm install nxus-worker-queue --save
 
+### Configuration Options
+
+    "worker_queue": {
+      "redis_url": "redis://localhost:6379",
+      "cleanInterval": 3600000
+    }
+
+It's conventional to use a configuration variable to set the
+Redis URL in the production environment. For example:
+
+    application.config['worker_queue'].redis_url =
+      process.env.REDIS_URL || application.config['worker_queue'].redis_url
+
 ### Usage
 
 For each task, you need to define a unique task name.
