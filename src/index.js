@@ -17,7 +17,8 @@
  * ## Configuration Options
  *
  *     "worker_queue": {
- *       "redis_url": "redis://localhost:6379"
+ *       "redis_url": "redis://localhost:6379",
+ *       "cleanInterval": 3600000
  *     }
  *
  * It's conventional to use a configuration variable to set the
