@@ -1,43 +1,55 @@
-/* 
+/*
 * @Author: Mike Reich
 * @Date:   2016-02-05 07:45:34
 * @Last Modified 2016-09-09
 */
 /**
  * # Worker Queue Module
- * 
+ *
  * [![Build Status](https://travis-ci.org/nxus/worker-queue.svg?branch=master)](https://travis-ci.org/nxus/worker-queue)
- * 
+ *
  * Using Redis for pub/sub background tasks
- * 
+ *
  * ## Installation
- * 
+ *
  *     > npm install nxus-worker-queue --save
- * 
+ *
+ * ## Configuration Options
+ *
+ *     "worker_queue": {
+ *       "redis_url": "redis://localhost:6379"
+ *     }
+ *
+ * It's conventional to use a configuration variable to set the
+ * Redis URL in the production environment. For example:
+ *
+ *     application.config['worker_queue'].redis_url =
+ *       process.env.REDIS_URL || application.config['worker_queue'].redis_url
+ *
  * ## Usage
- * 
+ *
  * For each task, you need to define a unique task name.
- * 
+ *
  * ### Register a worker handler
- * 
+ *
  * ```
  * import {workerQueue} from 'nxus-worker-queue'
  * workerQueue.worker('myBackgroundTask', ({data}) => {
  *   this.log.debug("Hello", data.hi)
  * })
  * ```
- * 
+ *
  * ### Request task processing
- * 
+ *
  * ```
  * import {workerQueue} from 'nxus-worker-queue'
  * workerQueue.task('myBackgroundTask', {hi: world})
  * ```
- * 
+ *
  * ### Receive notifications of completed tasks
- * 
+ *
  * Register two tasks, one for processing and one for notifications, and trigger the second from within the first handler.
- * 
+ *
  * ```
  * import {workerQueue} from 'nxus-worker-queue'
  * workerQueue.worker('myBackgroundTask', ({data}) => {
@@ -48,10 +60,10 @@
  *   this.log.debug("Completed", data.result)
  * })
  * ```
- * 
+ *
  * `workerQueue.task('myBackgroundTask', {hi: world})`
- * 
- * 
+ *
+ *
  * # API
  * ----
  */
@@ -64,7 +76,7 @@ import Promise from 'bluebird'
 import _ from 'underscore'
 
 import {application as app, NxusModule} from 'nxus-core'
- 
+
 /**
  * Worker Queue module for background tasks
  */
@@ -103,12 +115,8 @@ class WorkerQueue extends NxusModule {
   }
 
   _connect(name) {
-    let parsed = URL.parse(this.config.redis_url)
-    let opts = {url: this.config.redis_url}
-    if(parsed.auth)
-      opts.password = parsed.auth.substr(parsed.auth.indexOf(":")+1, parsed.auth.length-1)
     if(!this._queues[name]) {
-      this._queues[name] = new Queue(name, URL.parse(this.config.redis_url).port, URL.parse(this.config.redis_url).hostname, opts);
+      this._queues[name] = new Queue(name, this.config.redis_url)
       this._queues[name].on('error', (error) => {
         this.log.error(error)
       })
@@ -126,7 +134,7 @@ class WorkerQueue extends NxusModule {
    * @param {function} handler Handler for processing task requests
    * @example workerQueue.worker('backgroundJob', (msg) -> {})
    */
-  
+
   worker (taskName, handler) {
     this._connect(taskName)
     this.log.debug('Registering task worker for', taskName)
@@ -147,7 +155,7 @@ class WorkerQueue extends NxusModule {
   }
 
   /**
-   * Cleans the current queue for the given taskName. 
+   * Cleans the current queue for the given taskName.
    * @param  {string} taskName The queue/task name to clean.
    * @param  {String} type     The type of message to clean. Defaults to 'completed'.
    * @param  {Number} delay    The grace period. Messages older than this will be cleaned. Defaults to 60 seconds.
@@ -160,7 +168,7 @@ class WorkerQueue extends NxusModule {
   }
 
   /**
-   * Cleans all queues for the specified message type. 
+   * Cleans all queues for the specified message type.
    * @param  {String} type     The type of message to clean. Defaults to 'completed'.
    * @param  {Number} delay    The grace period. Messages older than this will be cleaned. Defaults to 60 seconds.
    */
@@ -172,7 +180,7 @@ class WorkerQueue extends NxusModule {
   }
 
   /**
-   * Emptys the current queue for the given taskName. 
+   * Emptys the current queue for the given taskName.
    * @param  {string} taskName The name of the queue to empty. If not provided, all queues are emptied.
    */
   empty(taskName) {
@@ -182,7 +190,7 @@ class WorkerQueue extends NxusModule {
   }
 
   /**
-   * Emptys the all queues. 
+   * Emptys the all queues.
    * @param  {string} taskName The name of the queue to empty. If not provided, all queues are emptied.
    */
   emptyAll() {
@@ -191,7 +199,7 @@ class WorkerQueue extends NxusModule {
       return queue.empty()
     })
   }
-} 
+}
 
 var workerQueue = WorkerQueue.getProxy()
 export {WorkerQueue as default, workerQueue}
