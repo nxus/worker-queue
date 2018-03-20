@@ -124,6 +124,9 @@ class WorkerQueue extends NxusModule {
       this._queues[name].on('stalled', (job) => {
         this.log.warn("Worker-queue task stalled", job)
       })
+      this._queues[name].on('failed', (job, err) => {
+        this.log.warn("Worker queue job failed", err)
+      })
     }
   }
 
