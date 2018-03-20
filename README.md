@@ -12,20 +12,22 @@ Using Redis for pub/sub background tasks
 
 ### Installation
 
-    > npm install nxus-worker-queue --save
+        > npm install nxus-worker-queue --save
 
 ### Configuration Options
 
-    "worker_queue": {
-      "redis_url": "redis://localhost:6379",
-      "cleanInterval": 3600000
-    }
+        "worker_queue": {
+          "redis_url": "redis://localhost:6379",
+          "cleanInterval": 3600000
+        }
 
 It's conventional to use a configuration variable to set the
 Redis URL in the production environment. For example:
 
-    application.config['worker_queue'].redis_url =
-      process.env.REDIS_URL || application.config['worker_queue'].redis_url
+        let config = {}
+        if (process.env.REDIS_URL)
+          config.worker_queue = { redis_url: process.env.REDIS_URL }
+        application.start(config)
 
 ### Usage
 
@@ -33,30 +35,34 @@ For each task, you need to define a unique task name.
 
 #### Register a worker handler
 
-    import {workerQueue} from 'nxus-worker-queue'
-    workerQueue.worker('myBackgroundTask', ({data}) => {
-      this.log.debug("Hello", data.hi)
-    })
+        import {workerQueue} from 'nxus-worker-queue'
+        workerQueue.worker('myBackgroundTask', ({data}) => {
+          this.log.debug("Hello", data.hi)
+        })
 
 #### Request task processing
 
-    import {workerQueue} from 'nxus-worker-queue'
-    workerQueue.task('myBackgroundTask', {hi: world})
+        import {workerQueue} from 'nxus-worker-queue'
+        let job = workerQueue.task('myBackgroundTask', {hi: world})
 
-#### Receive notifications of completed tasks
+#### The job object and notification of completed tasks
 
-Register two tasks, one for processing and one for notifications, and trigger the second from within the first handler.
+The worker queue module interacts with Redis through the intermediary
+Bull package. This "fastest, most reliable, Redis-based queue for
+Node" is "carefully written for rock solid stability and atomicity".
+For documentation, a good place to start is
+the [Reference](https://github.com/pertoo/bull/blob/master/REFERENCE.md) page.
 
-    import {workerQueue} from 'nxus-worker-queue'
-    workerQueue.worker('myBackgroundTask', ({data}) => {
-      this.log.debug("Hello", data.hi)
-      workerQueue.task('myBackgroundTask-complete', {result: true})
-    })
-    workerQueue.worker('myBackgroundTask-complete', ({data}) => {
-      this.log.debug("Completed", data.result)
-    })
+The `task()` method returns a Bull `Job` object that allows you to
+interact with the background task.
 
-`workerQueue.task('myBackgroundTask', {hi: world})`
+In particular, the `Job` object exposes a `finished()` method that,
+when invoked, returns a promise that resolves when the job finishes.
+The value of the promise corresponds to the value of the promise
+returned by the task handler.
+
+        let job = workerQueue.task('myBackgroundTask', {hi: world})
+        job.finished().then((rslt) = { console.log('background task finished: ', rslt) })
 
 ## API
 
@@ -74,8 +80,9 @@ Provide a task handler
 
 **Parameters**
 
--   `taskName` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Name of the task (channel) to listen for
--   `handler` **[function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function)** Handler for processing task requests
+-   `taskName` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** Name of the task (channel) to listen for
+-   `handler` **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** Handler for processing task requests;
+      should return a promise that resolves on completion
 
 **Examples**
 
@@ -89,8 +96,8 @@ Request handling of a background task
 
 **Parameters**
 
--   `taskName` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Name of the task (channel) to publish to
--   `message` **[object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** Options for the task worker;
+-   `taskName` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** Name of the task (channel) to publish to
+-   `message` **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** Options for the task worker;
       must be JSON serializable
 
 **Examples**
@@ -99,15 +106,17 @@ Request handling of a background task
 workerQueue.task('backgroundJob', {hi: 'world'})
 ```
 
+Returns **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** Bull job object
+
 #### clean
 
 Cleans the current queue for the given taskName.
 
 **Parameters**
 
--   `taskName` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The queue/task name to clean.
--   `type` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The type of message to clean. Defaults to 'completed'. (optional, default `'completed'`)
--   `delay` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** The grace period. Messages older than this will be cleaned. Defaults to 60 seconds. (optional, default `60000`)
+-   `taskName` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The queue/task name to clean.
+-   `type` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The type of message to clean. Defaults to 'completed'. (optional, default `'completed'`)
+-   `delay` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** The grace period. Messages older than this will be cleaned. Defaults to 60 seconds. (optional, default `60000`)
 
 #### cleanAll
 
@@ -115,8 +124,8 @@ Cleans all queues for the specified message type.
 
 **Parameters**
 
--   `type` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The type of message to clean. Defaults to 'completed'. (optional, default `'completed'`)
--   `delay` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** The grace period. Messages older than this will be cleaned. Defaults to 60 seconds. (optional, default `60000`)
+-   `type` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The type of message to clean. Defaults to 'completed'. (optional, default `'completed'`)
+-   `delay` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** The grace period. Messages older than this will be cleaned. Defaults to 60 seconds. (optional, default `60000`)
 
 #### empty
 
@@ -124,7 +133,7 @@ Emptys the current queue for the given taskName.
 
 **Parameters**
 
--   `taskName` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the queue to empty. If not provided, all queues are emptied.
+-   `taskName` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the queue to empty. If not provided, all queues are emptied.
 
 #### emptyAll
 
@@ -132,4 +141,4 @@ Emptys the all queues.
 
 **Parameters**
 
--   `taskName` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the queue to empty. If not provided, all queues are emptied.
+-   `taskName` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the queue to empty. If not provided, all queues are emptied.
