@@ -74,8 +74,8 @@ Provide a task handler
 
 **Parameters**
 
--   `taskName` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** Name of the task (channel) to listen for
--   `handler` **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** Handler for processing task requests
+-   `taskName` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Name of the task (channel) to listen for
+-   `handler` **[function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function)** Handler for processing task requests
 
 **Examples**
 
@@ -89,8 +89,8 @@ Request handling of a background task
 
 **Parameters**
 
--   `taskName` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** Name of the task (channel) to publish to
--   `message` **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** Options for the task worker;
+-   `taskName` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Name of the task (channel) to publish to
+-   `message` **[object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** Options for the task worker;
       must be JSON serializable
 
 **Examples**
@@ -105,9 +105,9 @@ Cleans the current queue for the given taskName.
 
 **Parameters**
 
--   `taskName` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The queue/task name to clean.
--   `type` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The type of message to clean. Defaults to 'completed'. (optional, default `'completed'`)
--   `delay` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** The grace period. Messages older than this will be cleaned. Defaults to 60 seconds. (optional, default `60000`)
+-   `taskName` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The queue/task name to clean.
+-   `type` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The type of message to clean. Defaults to 'completed'. (optional, default `'completed'`)
+-   `delay` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** The grace period. Messages older than this will be cleaned. Defaults to 60 seconds. (optional, default `60000`)
 
 #### cleanAll
 
@@ -115,8 +115,8 @@ Cleans all queues for the specified message type.
 
 **Parameters**
 
--   `type` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The type of message to clean. Defaults to 'completed'. (optional, default `'completed'`)
--   `delay` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** The grace period. Messages older than this will be cleaned. Defaults to 60 seconds. (optional, default `60000`)
+-   `type` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The type of message to clean. Defaults to 'completed'. (optional, default `'completed'`)
+-   `delay` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** The grace period. Messages older than this will be cleaned. Defaults to 60 seconds. (optional, default `60000`)
 
 #### empty
 
@@ -124,7 +124,7 @@ Emptys the current queue for the given taskName.
 
 **Parameters**
 
--   `taskName` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the queue to empty. If not provided, all queues are emptied.
+-   `taskName` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the queue to empty. If not provided, all queues are emptied.
 
 #### emptyAll
 
@@ -132,4 +132,4 @@ Emptys the all queues.
 
 **Parameters**
 
--   `taskName` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the queue to empty. If not provided, all queues are emptied.
+-   `taskName` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the queue to empty. If not provided, all queues are emptied.
