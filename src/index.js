@@ -115,9 +115,9 @@ class WorkerQueue extends NxusModule {
     }
   }
 
-  _connect(name) {
+  _connect(name, opts = {}) {
     if(!this._queues[name]) {
-      this._queues[name] = new Queue(name, this.config.redis_url)
+      this._queues[name] = new Queue(name, this.config.redis_url, opts)
       this._queues[name].on('error', (error) => {
         this.log.error(error)
       })
@@ -139,8 +139,8 @@ class WorkerQueue extends NxusModule {
    * @example workerQueue.worker('backgroundJob', (msg) -> {})
    */
 
-  worker (taskName, handler) {
-    this._connect(taskName)
+  worker (taskName, handler, opts = {}) {
+    this._connect(taskName, opts)
     this.log.debug('Registering task worker for', taskName)
     this._queues[taskName].process(handler)
   }
