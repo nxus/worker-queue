@@ -153,10 +153,10 @@ class WorkerQueue extends NxusModule {
    * @returns {object} Bull job object
    * @example workerQueue.task('backgroundJob', {hi: 'world'})
    */
-  task (taskName, message) {
+  task (taskName, message, opts = {}) {
     this.log.debug('Task requested', taskName)
     this._connect(taskName)
-    return this._queues[taskName].add(message)
+    return this._queues[taskName].add(message, opts)
   }
 
   /**
