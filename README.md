@@ -118,6 +118,7 @@ Request handling of a background task
 -   `taskName` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Name of the task (channel) to publish to
 -   `message` **[object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** Options for the task worker;
       must be JSON serializable
+-   `opts`   (optional, default `{}`)
 
 **Examples**
 
