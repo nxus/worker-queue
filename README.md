@@ -136,7 +136,7 @@ Cleans the current queue for the given taskName.
 
 -   `taskName` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The queue/task name to clean.
 -   `type` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The type of message to clean. Defaults to 'completed'. (optional, default `'completed'`)
--   `delay` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** The grace period. Messages older than this will be cleaned. Defaults to 60 seconds. (optional, default `60000`)
+-   `delay` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** The grace period. Messages older than this will be cleaned. Defaults to 1 hour. (optional, default `3600000`)
 
 #### cleanAll
 
@@ -145,7 +145,7 @@ Cleans all queues for the specified message type.
 **Parameters**
 
 -   `type` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The type of message to clean. Defaults to 'completed'. (optional, default `'completed'`)
--   `delay` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** The grace period. Messages older than this will be cleaned. Defaults to 60 seconds. (optional, default `60000`)
+-   `delay` **[Number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** The grace period. Messages older than this will be cleaned. Defaults to 1 hour. (optional, default `3600000`)
 
 #### empty
 
