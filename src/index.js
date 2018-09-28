@@ -163,9 +163,9 @@ class WorkerQueue extends NxusModule {
    * Cleans the current queue for the given taskName.
    * @param  {string} taskName The queue/task name to clean.
    * @param  {String} type     The type of message to clean. Defaults to 'completed'.
-   * @param  {Number} delay    The grace period. Messages older than this will be cleaned. Defaults to 60 seconds.
+   * @param  {Number} delay    The grace period. Messages older than this will be cleaned. Defaults to 1 hour.
    */
-  clean(taskName, type = 'completed', delay = 60000) {
+  clean(taskName, type = 'completed', delay = 3600000) {
     if(!this._queues[taskName]) return this.log.error('Queue does not exist to clean', taskName)
     this.log.debug('Cleaning Queue', taskName+":"+type)
     let queue = this._queues[taskName]
@@ -175,9 +175,9 @@ class WorkerQueue extends NxusModule {
   /**
    * Cleans all queues for the specified message type.
    * @param  {String} type     The type of message to clean. Defaults to 'completed'.
-   * @param  {Number} delay    The grace period. Messages older than this will be cleaned. Defaults to 60 seconds.
+   * @param  {Number} delay    The grace period. Messages older than this will be cleaned. Defaults to 1 hour.
    */
-  cleanAll(type = 'completed', delay = 60000) {
+  cleanAll(type = 'completed', delay = 3600000) {
     this.log.debug('Cleaning all queues:', type)
     return Promise.mapSeries(_.values(this._queues), (queue) => {
       return queue.clean(delay, type)
