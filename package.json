@@ -26,9 +26,9 @@
   "dependencies": {
     "bluebird": "^3.3.5",
     "bull": "^3.3.1",
+    "nxus-core": "https://github.com/nxus/core.git#feature/boot-stages-build-connect",
     "redis": "^2.4.2",
-    "underscore": "^1.8.3",
-    "nxus-core": "^4.0.0"
+    "underscore": "^1.8.3"
   },
   "devDependencies": {
     "babel-cli": "^6.9.0",
@@ -39,6 +39,7 @@
     "documentation": "^6.1.0",
     "mocha": "^2.2.5",
     "should": "^7.0.2",
-    "sinon": "^1.17.2"
+    "sinon": "^1.17.2",
+    "redis-server": "^1.2.2"
   }
 }

@@ -86,20 +86,10 @@ class WorkerQueue extends NxusModule {
 
     this._queues = {}
 
-    app.once('stop', () => {
-      _.each(this._queues, (queue, name) => {
-        return queue.close().then(() => {this.log.debug('Queue closed', name)})
-      })
+    this._connected = app.once('connect', ::this._connect)
+    this._launched = app.once('launch', ::this._launch)
+    app.once('stop', ::this._disconnect)
 
-      if(this._cleanInterval) clearInterval(this._cleanInterval)
-    })
-
-    if(this.config.cleanInterval) {
-      this._cleanInterval = setInterval(() => {
-        this.cleanAll()
-        this.cleanAll('failed')
-      }, this.config.cleanInterval)
-    }
   }
 
   _userConfig() {
@@ -114,7 +104,33 @@ class WorkerQueue extends NxusModule {
     }
   }
 
-  _connect(name, opts = {}) {
+  _connect() {
+    this.log.debug('Connecting task queues')
+    if(this.config.cleanInterval) {
+      this._cleanInterval = setInterval(() => {
+        this.cleanAll()
+        this.cleanAll('failed')
+      }, this.config.cleanInterval)
+    }
+  }
+
+  async _disconnect() {
+    this.log.debug('Disconnecting task queues')
+    for (let [name, queue] of Object.entries(this._queues)) {
+      await queue.close()
+      this.log.debug('Queue closed', name)
+      delete this._queues[name]
+    }
+    if(this._cleanInterval) clearInterval(this._cleanInterval)
+  }
+
+  _launch() {
+    this.log.debug('Ready to process tasks')
+  }
+
+  async _register(name, handler, opts = {}) {
+    await this._connected
+    this.log.debug('Registering task worker for', name)
     if(!this._queues[name]) {
       this._queues[name] = new Queue(name, this.config.redis_url, opts)
       this._queues[name].on('error', (error) => {
@@ -126,6 +142,9 @@ class WorkerQueue extends NxusModule {
       this._queues[name].on('failed', (job, err) => {
         this.log.warn("Worker queue job failed", err)
       })
+      if (handler) {
+        this._queues[name].process(handler)
+      }
     }
   }
 
@@ -140,9 +159,7 @@ class WorkerQueue extends NxusModule {
    */
 
   worker (taskName, handler, opts = {}) {
-    this._connect(taskName, opts)
-    this.log.debug('Registering task worker for', taskName)
-    this._queues[taskName].process(handler)
+    return this._register(taskName, handler, opts)
   }
 
   /**
@@ -153,9 +170,10 @@ class WorkerQueue extends NxusModule {
    * @returns {object} Bull job object
    * @example workerQueue.task('backgroundJob', {hi: 'world'})
    */
-  task (taskName, message, opts = {}) {
+  async task (taskName, message, opts = {}) {
     this.log.debug('Task requested', taskName)
-    this._connect(taskName)
+    await this._register(taskName)
+    await this._launched
     return this._queues[taskName].add(message, opts)
   }
 
