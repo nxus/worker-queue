@@ -204,6 +204,17 @@ class WorkerQueue extends NxusModule {
       return queue.empty()
     })
   }
+
+  /**
+   * Gets task counts for taskName
+   * @param  {string} taskName The name of the queue to count
+   */
+  getCounts(taskName) {
+    this.log.debug('Getting queue counts', taskName)
+    this._connect(taskName)
+    return this._queues[taskName].getJobCounts()
+  }
+  
 }
 
 var workerQueue = WorkerQueue.getProxy()
